@@ -10,6 +10,8 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>zkstudy</module>
+        <module>quartztest</module>
+        <module>springtask</module>
     </modules>
     <properties>
         <!-- Generic properties -->
