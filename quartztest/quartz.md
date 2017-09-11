@@ -1,3 +1,6 @@
+欢迎访问我的网站[http://www.wenzhihuai.com/](http://www.wenzhihuai.com/) 。谢谢啊，如果可以，希望能在GitHub上给个star，GitHub地址[https://github.com/Zephery/newblog](https://github.com/Zephery/newblog) 。
+
+
 ## Quartz
 先看一下Quartz的架构图：  
 <div align="center">
@@ -18,6 +21,7 @@
 4. Calendar：org.quartz.Calendar和java.util.Calendar不同，它是一些日历特定时间点的集合（可以简单地将org.quartz.Calendar看作java.util.Calendar的集合——java.util.Calendar代表一个日历时间点，无特殊说明后面的Calendar即指org.quartz.Calendar）。
 5. Scheduler：由上图可以看出，Scheduler是Quartz独立运行的容器。其中，Trigger和JobDetail可以注册到Scheduler中。
 6. ThreadPool：Scheduler使用一个线程池作为任务运行的基础设施，任务通过共享线程池中的线程提高运行效率。
+
 ### 三、Quartz设计
 1. properties file  
 [官网](http://www.quartz-scheduler.org/documentation/quartz-2.2.x/quick-start.html)中表明：quartz中使用了quartz.properties来对quartz进行配置，并保留在其jar包中，如果没有定义则默认使用改文件。
@@ -25,6 +29,7 @@
 （1）SimpleTrigger  
 指某一个时间开始，或者从现在开始以一定的间隔执行任务。
 其属性有
+
 ```java
 private Date startTime;
 private Date endTime;
@@ -35,6 +40,7 @@ private long repeatInterval;//重复间隔
 private int timesTriggered;
 private boolean complete;
 ```
+
 （2）CronTrigger  
 类似于linux cron中的语法，能够设置任何时间，重复次数等运行。
 详情请使用[cron表达式](http://cron.qqe2.com/)来查询。  
@@ -42,6 +48,7 @@ private boolean complete;
 
 4. JobListener
 先看一下JobListener的源码：
+
 ```java
 public interface JobListener {
     String getName();//某个joblistener的名字
@@ -50,12 +57,14 @@ public interface JobListener {
     void jobWasExecuted(JobExecutionContext var1, JobExecutionException var2);//取消
 }
 ```
+
 无非就是对某个任务的运行前、运行后、以及取消的侦听。次数使用观察者模式，对人物进行广播侦听。
 
 
 ### 四、使用
-1. hello world！代码[在这]()
-（1）定义一个job
+1. hello world！代码[在这]() 
+（1）定义一个job  
+
 ```java
 public class HelloJob implements Job {
     public void execute(JobExecutionContext context) throws JobExecutionException {
@@ -63,7 +72,9 @@ public class HelloJob implements Job {
     }
 }
 ```
-（2）运行（来自官网修改的例子，官网那个例子需要等90秒）。。。坑
+
+（2）运行（来自官网修改的例子，官网那个例子需要等90秒）。。。坑  
+
 ```java
 public class SimpleExample {
     public static void main(String[] args) throws Exception {
@@ -84,12 +95,15 @@ public class SimpleExample {
     }
 }
 ```
-（3）运行结果：
+
+（3）运行结果：  
 ```html
 Hello World! - Mon Sep 11 15:55:53 CST 2017
 ```
-2. 自定义监听器
-（1）自定义listener
+
+2. 自定义监听器  
+（1）自定义listener  
+
 ```java
 public class MyJobListener implements JobListener {
     @Override//相当于为我们的监听器命名
@@ -116,12 +130,15 @@ public class MyJobListener implements JobListener {
 
 }
 ```
+
 （2）跟上例一样，只需在Scheduler上增加监听器即可。
+
 ```java
 JobListener myJobListener = new MyJobListener();
 KeyMatcher<JobKey> keyMatcher = KeyMatcher.keyEquals(job.getKey());
 sched.getListenerManager().addJobListener(myJobListener, keyMatcher);
 ```
+
 （3）结果：
 ```html
 myJobListener触发对class com.quartz.hello.HelloJob的开始执行的监听工作，这里可以完成任务前的一些资源准备工作或日志记录
@@ -129,8 +146,9 @@ Hello World! - Mon Sep 11 16:57:56 CST 2017
 myJobListener触发对class com.quartz.hello.HelloJob结束执行的监听工作，这里可以进行资源销毁工作或做一些新闻扒取结果的统计工作
 ```
 
-3. 本网站中使用quartz来对数据库进行备份，与Spring结合
+3. 本网站中使用quartz来对数据库进行备份，与Spring结合  
 （1）导入spring的拓展包，其协助spring集成第三方库：邮件服务、定时任务、缓存等。。。
+
 ```html
 <dependency>
     <groupId>org.springframework</groupId>
@@ -138,7 +156,8 @@ myJobListener触发对class com.quartz.hello.HelloJob结束执行的监听工作
     <version>4.2.6.RELEASE</version>
 </dependency>
 ```
-（2）导入quartz包
+
+（2）导入quartz包  
 ```html
 <dependency>
     <groupId>org.quartz-scheduler</groupId>
@@ -152,6 +171,7 @@ myJobListener触发对class com.quartz.hello.HelloJob结束执行的监听工作
 mysqldump -u [username] -p[password] -h [hostip] database > file
 ```
 但是java不能直接执行linux的命令，仍旧需要依赖第三方库ganymed
+
 ```html
 <dependency>
     <groupId>ch.ethz.ganymed</groupId>
@@ -159,7 +179,9 @@ mysqldump -u [username] -p[password] -h [hostip] database > file
     <version>262</version>
 </dependency>
 ```
+
 完整代码如下：
+
 ```java
 @Component("mysqlService")//在spring中注册一个mysqlService的Bean
 public class MysqlUtil {
@@ -180,7 +202,9 @@ public class MysqlUtil {
     BufferedReader br = new BufferedReader(new InputStreamReader(stdout));
 }
 ```
+
 （4）spring中配置quartz
+
 ```xml
 <bean id="jobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
     <property name="targetObject" ref="mysqlService"/>
@@ -201,23 +225,29 @@ public class MysqlUtil {
     </property>
 </bean>
 ```
+
 （5）java完整文件[在这](https://github.com/Zephery/newblog/blob/master/src/main/java/com/myblog/util/MysqlUtil.java)
 
 ## Spring的高级特性之定时任务  
 java ee项目的定时任务中除了运行quartz之外，spring3+还提供了task，可以看做是一个轻量级的Quartz，而且使用起来比Quartz简单的多。
 
 1. spring配置文件中配置：
+
 ```html
 <task:annotation-driven/>
 ```
+
 2. 最简单的例子，在所需要的函数上添加定时任务即可运行
+
 ```java
     @Scheduled(fixedRate = 5000)
     public void reportCurrentTime() {
         System.out.println("每隔5秒运行一次" + sdf.format(new Date()));
     }
 ```
+
 3. 运行的时候会报错：
+
 ```html
 org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying bean of type [org.springframework.scheduling.TaskScheduler] is defined
 	at org.springframework.beans.factory.support.DefaultListableBeanFactory.getBean(DefaultListableBeanFactory.java:372)
@@ -229,6 +259,7 @@ org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying b
 	at org.springframework.context.event.SimpleApplicationEventMulticaster.multicastEvent(SimpleApplicationEventMulticaster.java:136)
 	at org.springframework.context.support.AbstractApplicationContext.publishEvent(AbstractApplicationContext.java:380)
 ```
+
 Spring的定时任务调度器会尝试获取一个注册过的 task scheduler来做任务调度，它会尝试通过BeanFactory.getBean的方法来获取一个注册过的scheduler bean，获取的步骤如下：
 (1) 尝试从配置中找到一个TaskScheduler Bean  
 (2) 寻找ScheduledExecutorService Bean  
@@ -245,5 +276,8 @@ log4j.logger.org.springframework.scheduling=INFO
 
 参考：  
 (1) [http://blog.csdn.net/oarsman/article/details/52801877](http://blog.csdn.net/oarsman/article/details/52801877)  
-(2) [http://stackoverflow.com/questions/31199888/spring-task-scheduler-no-qualifying-bean-of-type-org-springframework-scheduli](http://stackoverflow.com/questions/31199888/spring-task-scheduler-no-qualifying-bean-of-type-org-springframework-scheduli)
+(2) [http://stackoverflow.com/questions/31199888/spring-task-scheduler-no-qualifying-bean-of-type-org-springframework-scheduli](http://stackoverflow.com/questions/31199888/spring-task-scheduler-no-qualifying-bean-of-type-org-springframework-scheduli)  
 (3)[http://blog.csdn.net/qwe6112071/article/details/50991531](http://blog.csdn.net/qwe6112071/article/details/50991531)
+
+
+希望能在GitHub上给个star，[https://github.com/Zephery/newblog](https://github.com/Zephery/newblog)，谢谢么么哒(づ￣ 3￣)づ
