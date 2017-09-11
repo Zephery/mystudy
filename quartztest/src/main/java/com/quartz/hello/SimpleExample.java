@@ -3,6 +3,7 @@ package com.quartz.hello;
 import org.joda.time.DateTime;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
+import org.quartz.impl.matchers.KeyMatcher;
 
 /**
  * Created with IntelliJ IDEA.
@@ -21,6 +22,9 @@ public class SimpleExample {
                 .withIdentity("trigger1", "group1")
                 .startAt(DateTime.now().plusMillis(4).toDate())//固定一个时间，现在设置为程序启动后4秒
                 .build();
+        JobListener myJobListener = new MyJobListener();
+        KeyMatcher<JobKey> keyMatcher = KeyMatcher.keyEquals(job.getKey());
+        sched.getListenerManager().addJobListener(myJobListener, keyMatcher);
         sched.start();
         sched.scheduleJob(job, trigger);
         //启动后要sleep一下，不然立即关闭

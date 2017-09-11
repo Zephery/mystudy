@@ -12,6 +12,7 @@
         <module>zkstudy</module>
         <module>quartztest</module>
         <module>springtask</module>
+        <module>castest</module>
     </modules>
     <properties>
         <!-- Generic properties -->
